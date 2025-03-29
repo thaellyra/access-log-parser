@@ -1,13 +1,12 @@
-import java.io.File;
+import java.io.*;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        int filesCount = 0;
-
+        String path;
         while (true) {
             System.out.println("Введите путь к файлу и нажмите <Enter>:");
-            String path = new Scanner(System.in).nextLine();
+            path = new Scanner(System.in).nextLine();
             File file = new File(path);
             boolean fileExists = file.exists();
             boolean isDirectory = file.isDirectory();
@@ -18,11 +17,32 @@ public class Main {
             }
 
             if (fileExists) {
-                filesCount++;
-                System.out.println("Путь указан верно" + "\nЭто файл номер " + filesCount + "\nПродолжим!");
+                System.out.println("Путь указан верно");
+                break;
             } else {
                 System.out.println("Указан путь к несуществующему файлу, повторите попытку!");
             }
+        }
+
+        try {
+            FileReader fileReader = new FileReader(path);
+            BufferedReader reader = new BufferedReader(fileReader);
+            String line;
+            int lineCount = 0;
+            int lineMin = Integer.MAX_VALUE;
+            int lineMax = -1;
+            while ((line = reader.readLine()) != null) {
+                int length = line.length();
+                lineCount++;
+                if (length > lineMax) lineMax = length;
+                if (length < lineMin) lineMin = length;
+                if (length > 1024) throw new RuntimeException("В файле найдена строка длиннее 1024 символов");
+            }
+            System.out.println("Количество строк в файле: " + lineCount);
+            System.out.println("Длина самой короткой строки в файле: " + lineMin + " символов");
+            System.out.println("Длина самой длинной строки в файле: " + lineMax + " символов");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
