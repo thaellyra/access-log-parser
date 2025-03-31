@@ -33,7 +33,9 @@ public class Main {
 
             while ((line = reader.readLine()) != null) {
                 int length = line.length();
-                if (length > 1024) throw new RuntimeException("В файле найдена строка длиннее 1024 символов");
+                if (length > 1024) {
+                    throw new RuntimeException("В файле найдена строка длиннее 1024 символов");
+                }
 
                 String[] partsOne = logLineToComponents(line)[7].split(";");
                 if (partsOne.length >= 2) {
@@ -42,8 +44,12 @@ public class Main {
                     String[] partsTwo = fragmentPartOne.split("/");
                     String fragmentPartTwo = partsTwo[0];
 
-                    if (fragmentPartTwo.equalsIgnoreCase("YANDEXBOT")) yandexBotCount++;
-                    else if (fragmentPartTwo.equalsIgnoreCase("GOOGLEBOT")) googleBotCount++;
+                    if (fragmentPartTwo.equalsIgnoreCase("YANDEXBOT")) {
+                        yandexBotCount++;
+                    }
+                    else if (fragmentPartTwo.equalsIgnoreCase("GOOGLEBOT")) {
+                        googleBotCount++;
+                    }
                 }
             }
             System.out.println("Количество запросов от YandexBot: " + yandexBotCount);
