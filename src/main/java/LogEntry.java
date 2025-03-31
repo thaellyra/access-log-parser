@@ -1,8 +1,10 @@
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class LogEntry {
+    private static AtomicInteger counter = new AtomicInteger(0);;
     private final String ipAddr;
     private final ZonedDateTime time;
     private final HttpMethod method;
@@ -13,6 +15,7 @@ public class LogEntry {
     private final UserAgent agent;
 
     public LogEntry(String str) {
+        System.out.println(counter.incrementAndGet());
         char[] line = str.toCharArray();
         int length = line.length;
 
@@ -99,8 +102,7 @@ public class LogEntry {
         agent = new UserAgent(str.substring(currentPosition + 3, length - 1));
     }
 
-
-public String getIpAddr() {
+    public String getIpAddr() {
     return ipAddr;
 }
 

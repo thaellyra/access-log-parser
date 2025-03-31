@@ -1,10 +1,15 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String path;
         while (true) {
             System.out.println("Введите путь к файлу и нажмите <Enter>:");
@@ -26,28 +31,18 @@ public class Main {
             }
         }
 
-        try {
-            FileReader fileReader = new FileReader(path);
-            BufferedReader reader = new BufferedReader(fileReader);
-            String line;
-            List<LogEntry> logEntries = new ArrayList<>();
-            int count = 0;
-
-
-            while ((line = reader.readLine()) != null) {
-                int length = line.length();
-                if (length > 1024) {
-                    throw new RuntimeException("В файле найдена строка длиннее 1024 символов");
-                }
-                logEntries.add(new LogEntry(line));
-                count++;
-                System.out.println(count);
-            }
-
-            System.out.println(logEntries.get(234).getAgent().getBrowser());
-            System.out.println(logEntries.get(234).getAgent().getOsType());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        List<String> lines = Files.readAllLines(Path.of("D:\\downloads\\access.log"));
+        List<LogEntry> entries = new CopyOnWriteArrayList<>();
+        if(lines.stream().anyMatch(a -> a.length() > 1024)) {
+            System.out.println("офигенно здоровая строка");
+            throw new RuntimeException();
         }
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(12);
+        executor.setQueueCapacity(20);
+        executor.setMaxPoolSize(Integer.MAX_VALUE);
+        executor.initialize();
+        lines.stream().map(line -> CompletableFuture.runAsync(() -> entries.add(new LogEntry(line)),executor)).forEach(a->a.join());
+        System.out.printf("логов стало {%s}", entries.size());
     }
 }
