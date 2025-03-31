@@ -38,11 +38,10 @@ public class LogEntry {
             }
         }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.ENGLISH);
-        time = ZonedDateTime.parse(str.substring(tmpPosition + 1, currentPosition - 1), formatter);
-
+        time = ZonedDateTime.parse(str.substring(tmpPosition + 1, currentPosition), formatter);
 
         //Заполнение method - Метод запроса
-        for (int i = currentPosition + 1; i < length; i++) {
+        for (int i = currentPosition + 2; i < length; i++) {
             if (line[i] == '"') {
                 tmpPosition = i;
             }
@@ -51,7 +50,7 @@ public class LogEntry {
                 break;
             }
         }
-        method = HttpMethod.valueOf(str.substring(tmpPosition + 1, currentPosition - 1));
+        method = HttpMethod.valueOf(str.substring(tmpPosition + 1, currentPosition));
 
         //Заполнение path - Путь, по которому сделан запрос
         tmpPosition = currentPosition;

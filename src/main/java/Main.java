@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -28,20 +30,22 @@ public class Main {
             FileReader fileReader = new FileReader(path);
             BufferedReader reader = new BufferedReader(fileReader);
             String line;
+            List<LogEntry> logEntries = new ArrayList<>();
+            int count = 0;
+
 
             while ((line = reader.readLine()) != null) {
                 int length = line.length();
-                if (length > 1024) throw new RuntimeException("В файле найдена строка длиннее 1024 символов");
-
-                String[] partsOne = line.split(";");
-                if (partsOne.length >= 2) {
-                    String fragmentPartOne = partsOne[1].replace(" ", "");
-
-                    String[] partsTwo = fragmentPartOne.split("/");
-                    String fragmentPartTwo = partsTwo[0];
+                if (length > 1024) {
+                    throw new RuntimeException("В файле найдена строка длиннее 1024 символов");
                 }
+                logEntries.add(new LogEntry(line));
+                count++;
+                System.out.println(count);
             }
 
+            System.out.println(logEntries.get(234).getAgent().getBrowser());
+            System.out.println(logEntries.get(234).getAgent().getOsType());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
