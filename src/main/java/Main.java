@@ -31,21 +31,13 @@ public class Main {
             BufferedReader reader = new BufferedReader(fileReader);
             String line;
             List<LogEntry> logEntries = new ArrayList<>();
-            int count = 0;
-
-
             while ((line = reader.readLine()) != null) {
                 int length = line.length();
                 if (length > 1024) {
                     throw new RuntimeException("В файле найдена строка длиннее 1024 символов");
                 }
                 logEntries.add(new LogEntry(line));
-                count++;
-                System.out.println(count);
             }
-
-            System.out.println(logEntries.get(234).getAgent().getBrowser());
-            System.out.println(logEntries.get(234).getAgent().getOsType());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
