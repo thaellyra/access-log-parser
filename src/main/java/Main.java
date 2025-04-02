@@ -57,8 +57,10 @@ public class Main {
             }
             System.out.println("Всего получено строк: " + logEntries.size());
             System.out.println("Список существующих страниц: " + statistics.getExistingPages());
+            System.out.println("Список несуществующих страниц: " + statistics.getNotExistingPages());
             System.out.println("Средний объем трафика за час: " + statistics.getTrafficRate());
             System.out.println("Статистика используемых ОС: " + statistics.getOsStatistics());
+            System.out.println("Статистика используемых браузеров: " + statistics.getBrowserStatistics());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
