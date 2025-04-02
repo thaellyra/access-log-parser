@@ -24,7 +24,7 @@ public class LogEntry {
                 break;
             }
         }
-        ipAddr = str.substring(0, currentPosition - 1);
+        ipAddr = str.substring(0, currentPosition);
 
         //Заполнение time - Дата и время запроса
         int tmpPosition = 0;
@@ -60,7 +60,7 @@ public class LogEntry {
                 break;
             }
         }
-        path = str.substring(tmpPosition + 1, currentPosition - 1);
+        path = str.substring(tmpPosition + 1, currentPosition);
 
         //Заполнение responseCode - Код HTTP-ответа
         currentPosition += 2;
@@ -71,7 +71,7 @@ public class LogEntry {
                 break;
             }
         }
-        responseCode = Integer.parseInt(str.substring(tmpPosition, currentPosition - 1));
+        responseCode = Integer.parseInt(str.substring(tmpPosition, currentPosition));
 
         //Заполнение responseSize - Размер отданных данных в байтах
         currentPosition += 1;
@@ -82,7 +82,7 @@ public class LogEntry {
                 break;
             }
         }
-        responseSize = Integer.parseInt(str.substring(tmpPosition, currentPosition - 1));
+        responseSize = Integer.parseInt(str.substring(tmpPosition, currentPosition));
 
         //Заполнение referer - Путь к странице, с которой перешли на текущую страницу
         currentPosition += 2;
@@ -93,7 +93,7 @@ public class LogEntry {
                 break;
             }
         }
-        referer = str.substring(tmpPosition, currentPosition - 1);
+        referer = str.substring(tmpPosition, currentPosition);
 
         //Заполнение agent - User-Agent — информация о браузере или другом клиенте, который выполнил запрос
         agent = new UserAgent(str.substring(currentPosition + 3, length - 1));
