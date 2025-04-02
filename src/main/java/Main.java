@@ -43,7 +43,6 @@ public class Main {
 
             }
 
-
             for (LogEntry l : logEntries) {
                 System.out.println("ipAddr: " + l.getIpAddr());
                 System.out.println("time: " + l.getTime());
@@ -56,7 +55,7 @@ public class Main {
                 System.out.println("os: " + l.getAgent().getOsType());
                 System.out.println("===========================");
             }
-            System.out.println("Все получено строк: " + logEntries.size());
+            System.out.println("Всего получено строк: " + logEntries.size());
             System.out.println("Список существующих страниц: " + statistics.getExistingPages());
             System.out.println("Средний объем трафика за час: " + statistics.getTrafficRate());
             System.out.println("Статистика используемых ОС: " + statistics.getOsStatistics());
