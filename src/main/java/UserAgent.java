@@ -4,9 +4,9 @@ import ua_parser.Parser;
 public class UserAgent {
     private final String browser;
     private final String osType;
+    private static final Parser uaParser = new Parser();
 
     public UserAgent(String str) {
-        Parser uaParser = new Parser();
         Client client = uaParser.parse(str);
         browser = client.userAgent.family;
         osType = client.os.family;
