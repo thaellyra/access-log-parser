@@ -3,6 +3,8 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Statistics {
     private double totalTraffic;
@@ -12,25 +14,31 @@ public class Statistics {
     private HashSet<String> notExistingPages = new HashSet<>();
     private HashMap<String, Integer> osFrequency = new HashMap<>();
     private HashMap<String, Integer> browserFrequency = new HashMap<>();
-
+    private boolean firstEntry = true;
+    private int numberOfUsers;
+    private int numberOfErrorRequests;
+    private HashSet<String> uniqueIpAddr = new HashSet<>();
 
     public Statistics() {
-        minTime = ZonedDateTime.now();
-        maxTime = ZonedDateTime.now();
     }
 
     public void addEntry(LogEntry logEntry) {
         totalTraffic += logEntry.getResponseSize();
 
-        if (logEntry.getTime().compareTo(minTime) > 0) {
+        if (firstEntry) {
+            minTime = logEntry.getTime();
+            maxTime = logEntry.getTime();
+            firstEntry = false;
+        }
+        if (logEntry.getTime().compareTo(minTime) < 0) {
             minTime = logEntry.getTime();
         } else {
             maxTime = logEntry.getTime();
         }
 
-        if (logEntry.getResponseCode() == 200) {
+        if (logEntry.getResponseCode().equals("200")) {
             existingPages.add(logEntry.getPath());
-        } else if (logEntry.getResponseCode() == 404) {
+        } else if (logEntry.getResponseCode().equals("404")) {
             notExistingPages.add(logEntry.getPath());
         }
 
@@ -47,10 +55,23 @@ public class Statistics {
         } else {
             browserFrequency.put(browser, 1);
         }
+
+        if (!logEntry.getAgent().isBot()) {
+            numberOfUsers++;
+            uniqueIpAddr.add(logEntry.getIpAddr());
+        }
+
+        String regexp = "^(4\\d\\d|5\\d\\d)$";
+        Pattern logPattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = logPattern.matcher(logEntry.getResponseCode());
+        if (matcher.find()) {
+            numberOfErrorRequests++;
+        }
+
     }
 
     public double getTrafficRate() {
-        return totalTraffic / Duration.between(maxTime, minTime).toHours();
+        return totalTraffic / Duration.between(minTime, maxTime).toHours();
     }
 
     public HashSet<String> getExistingPages() {
@@ -89,5 +110,17 @@ public class Statistics {
         }
 
         return browserStatistics;
+    }
+
+    public double getSiteVisitsRate() {
+        return (double) numberOfUsers / Duration.between(minTime, maxTime).toHours();
+    }
+
+    public double getErrorRequestsRate() {
+        return (double) numberOfErrorRequests / Duration.between(minTime, maxTime).toHours();
+    }
+
+    public double getPerUserAttendanceRate() {
+        return (double) numberOfUsers / uniqueIpAddr.size();
     }
 }

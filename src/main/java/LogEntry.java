@@ -1,102 +1,37 @@
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LogEntry {
-    private final String ipAddr;
-    private final ZonedDateTime time;
-    private final HttpMethod method;
-    private final String path;
-    private final int responseCode;
-    private final int responseSize;
-    private final String referer;
-    private final UserAgent agent;
+    private String ipAddr;
+    private ZonedDateTime time;
+    private HttpMethod method;
+    private String path;
+    private String responseCode;
+    private int responseSize;
+    private String referer;
+    private UserAgent agent;
 
     public LogEntry(String str) {
-        char[] line = str.toCharArray();
-        int length = line.length;
-
-        //Заполнение ipAddr - IP-адрес клиента, который сделал запрос к серверу
-        int currentPosition = 0;
-        for (int i = 0; i < length; i++) {
-            if (line[i] == ' ') {
-                currentPosition = i;
-                break;
-            }
-        }
-        ipAddr = str.substring(0, currentPosition);
-
-        //Заполнение time - Дата и время запроса
-        int tmpPosition = 0;
-        for (int i = currentPosition; i < length; i++) {
-            if (line[i] == '[') {
-                tmpPosition = i;
-            }
-            if (line[i] == ']') {
-                currentPosition = i;
-                break;
-            }
-        }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.ENGLISH);
-        time = ZonedDateTime.parse(str.substring(tmpPosition + 1, currentPosition), formatter);
 
-        //Заполнение method - Метод запроса
-        for (int i = currentPosition + 2; i < length; i++) {
-            if (line[i] == '"') {
-                tmpPosition = i;
-            }
-            if (line[i] == ' ') {
-                currentPosition = i;
-                break;
-            }
+        String regexp = "^([0-9.]+)[^\\[]+\\[([^]]+)][^\"]+\"([a-z]+)[^\\S]+([\\S]+)[^\"]+\"[^\\S]+([0-9]+)[^\\S]+([0-9]+)[^\\S]+\"([^\"]+)\"[^\\S]+\"([^\"]+)\"$";
+        Pattern logPattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = logPattern.matcher(str);
+        if (matcher.find()) {
+            ipAddr = matcher.group(1);
+            time = ZonedDateTime.parse(matcher.group(2), formatter);
+            method = HttpMethod.valueOf(matcher.group(3));
+            path = matcher.group(4);
+            responseCode = matcher.group(5);
+            responseSize = Integer.parseInt(matcher.group(6));
+            referer = matcher.group(7);
+            agent = new UserAgent(matcher.group(8));
+        } else {
+            System.out.println("Ошибка парсинга строки");
         }
-        method = HttpMethod.valueOf(str.substring(tmpPosition + 1, currentPosition));
-
-        //Заполнение path - Путь, по которому сделан запрос
-        tmpPosition = currentPosition;
-        for (int i = currentPosition + 1; i < length; i++) {
-            if (line[i] == '"') {
-                currentPosition = i;
-                break;
-            }
-        }
-        path = str.substring(tmpPosition + 1, currentPosition);
-
-        //Заполнение responseCode - Код HTTP-ответа
-        currentPosition += 2;
-        tmpPosition = currentPosition;
-        for (int i = currentPosition; i < length; i++) {
-            if (line[i] == ' ') {
-                currentPosition = i;
-                break;
-            }
-        }
-        responseCode = Integer.parseInt(str.substring(tmpPosition, currentPosition));
-
-        //Заполнение responseSize - Размер отданных данных в байтах
-        currentPosition += 1;
-        tmpPosition = currentPosition;
-        for (int i = currentPosition + 1; i < length; i++) {
-            if (line[i] == ' ') {
-                currentPosition = i;
-                break;
-            }
-        }
-        responseSize = Integer.parseInt(str.substring(tmpPosition, currentPosition));
-
-        //Заполнение referer - Путь к странице, с которой перешли на текущую страницу
-        currentPosition += 2;
-        tmpPosition = currentPosition;
-        for (int i = currentPosition; i < length; i++) {
-            if (line[i] == '\"') {
-                currentPosition = i;
-                break;
-            }
-        }
-        referer = str.substring(tmpPosition, currentPosition);
-
-        //Заполнение agent - User-Agent — информация о браузере или другом клиенте, который выполнил запрос
-        agent = new UserAgent(str.substring(currentPosition + 3, length - 1));
     }
 
 
@@ -116,7 +51,7 @@ public String getPath() {
     return path;
 }
 
-public int getResponseCode() {
+public String getResponseCode() {
     return responseCode;
 }
 

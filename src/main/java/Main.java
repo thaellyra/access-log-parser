@@ -43,6 +43,7 @@ public class Main {
 
             }
 
+            /*
             for (LogEntry l : logEntries) {
                 System.out.println("ipAddr: " + l.getIpAddr());
                 System.out.println("time: " + l.getTime());
@@ -54,13 +55,16 @@ public class Main {
                 System.out.println("browser: " + l.getAgent().getBrowser());
                 System.out.println("os: " + l.getAgent().getOsType());
                 System.out.println("===========================");
-            }
+            }*/
             System.out.println("Всего получено строк: " + logEntries.size());
-            System.out.println("Список существующих страниц: " + statistics.getExistingPages());
-            System.out.println("Список несуществующих страниц: " + statistics.getNotExistingPages());
+            //System.out.println("Список существующих страниц: " + statistics.getExistingPages());
+            //System.out.println("Список несуществующих страниц: " + statistics.getNotExistingPages());
             System.out.println("Средний объем трафика за час: " + statistics.getTrafficRate());
             System.out.println("Статистика используемых ОС: " + statistics.getOsStatistics());
             System.out.println("Статистика используемых браузеров: " + statistics.getBrowserStatistics());
+            System.out.println("Среднее количество посещений сайта за час: " + statistics.getSiteVisitsRate());
+            System.out.println("Среднее количество ошибочных запросов в час: " + statistics.getErrorRequestsRate());
+            System.out.println("Средняя посещаемость одним пользователем: " + statistics.getPerUserAttendanceRate());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
