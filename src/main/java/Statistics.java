@@ -3,9 +3,9 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Statistics {
     private double totalTraffic;
@@ -150,39 +150,26 @@ public class Statistics {
     }
 
     public HashMap<ZonedDateTime, Integer> getMaxAttendanceAtTime() {
-        /*ZonedDateTime maxAttendanceTime = null;
-        Integer maxAttendance = 0;
-        for (Map.Entry<ZonedDateTime, Integer> tmp : attendanceAtTime.entrySet()) {
-            if (tmp.getValue() > maxAttendance) {
-                maxAttendance = tmp.getValue();
-                maxAttendanceTime = tmp.getKey();
-            }
-        }
-
-        HashMap<ZonedDateTime, Integer> maxAttendanceAtTime = new HashMap<>();
-        maxAttendanceAtTime.put(maxAttendanceTime, maxAttendance);
-
-        return maxAttendanceAtTime;*/
-        return attendanceAtTime.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(entry -> {
-                    HashMap<ZonedDateTime, Integer> map = new HashMap<>();
-                    map.put(entry.getKey(), entry.getValue());
-                    return map;
-                })
-                .orElseGet(HashMap::new);
+        return (HashMap<ZonedDateTime, Integer>) attendanceAtTime.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(attendanceAtTime.values().stream()
+                        .max(Integer::compareTo)
+                        .orElseThrow()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue));
     }
 
     public HashSet<String> getReferers() {
         return new HashSet<>(referers);
     }
 
-    public int getMaxAttendancePerUser() {
-        Optional<Integer> maxAttendancePerUser = attendancePerUser.entrySet()
-                .stream()
-                .max(Map.Entry.comparingByValue())
-                .map(entry -> entry.getValue());
-
-        return maxAttendancePerUser.get();
+    public HashMap<String, Integer> getMaxAttendancePerUser() {
+        return (HashMap<String, Integer>) attendancePerUser.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(attendancePerUser.values().stream()
+                        .max(Integer::compareTo)
+                        .orElseThrow()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue));
     }
 }
