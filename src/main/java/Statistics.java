@@ -3,6 +3,7 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,6 +19,9 @@ public class Statistics {
     private int numberOfUsers;
     private int numberOfErrorRequests;
     private HashSet<String> uniqueIpAddr = new HashSet<>();
+    private HashMap<ZonedDateTime, Integer> attendanceAtTime = new HashMap<>();
+    private HashSet<String> referers = new HashSet<>();
+    private HashMap<String, Integer> attendancePerUser = new HashMap<>();
 
     public Statistics() {
     }
@@ -58,7 +62,22 @@ public class Statistics {
 
         if (!logEntry.getAgent().isBot()) {
             numberOfUsers++;
+
             uniqueIpAddr.add(logEntry.getIpAddr());
+
+            ZonedDateTime currTime = logEntry.getTime();
+            if (attendanceAtTime.containsKey(currTime)) {
+                attendanceAtTime.replace(currTime, attendanceAtTime.get(currTime) + 1);
+            } else {
+                attendanceAtTime.put(currTime, 1);
+            }
+
+            String currIpAddr = logEntry.getIpAddr();
+            if (attendancePerUser.containsKey(currIpAddr)) {
+                attendancePerUser.replace(currIpAddr, attendancePerUser.get(currIpAddr) + 1);
+            } else {
+                attendancePerUser.put(currIpAddr, 1);
+            }
         }
 
         String regexp = "^(4\\d\\d|5\\d\\d)$";
@@ -68,6 +87,12 @@ public class Statistics {
             numberOfErrorRequests++;
         }
 
+        regexp = "^(?:https?:\\/\\/)?([a-z0-9-]+(?:\\.[a-z0-9-]+)*\\.[a-z]{2,})(?:\\/|$)";
+        logPattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        matcher = logPattern.matcher(logEntry.getReferer());
+        if (matcher.find()) {
+            referers.add(matcher.group(1));
+        }
     }
 
     public double getTrafficRate() {
@@ -122,5 +147,42 @@ public class Statistics {
 
     public double getPerUserAttendanceRate() {
         return (double) numberOfUsers / uniqueIpAddr.size();
+    }
+
+    public HashMap<ZonedDateTime, Integer> getMaxAttendanceAtTime() {
+        /*ZonedDateTime maxAttendanceTime = null;
+        Integer maxAttendance = 0;
+        for (Map.Entry<ZonedDateTime, Integer> tmp : attendanceAtTime.entrySet()) {
+            if (tmp.getValue() > maxAttendance) {
+                maxAttendance = tmp.getValue();
+                maxAttendanceTime = tmp.getKey();
+            }
+        }
+
+        HashMap<ZonedDateTime, Integer> maxAttendanceAtTime = new HashMap<>();
+        maxAttendanceAtTime.put(maxAttendanceTime, maxAttendance);
+
+        return maxAttendanceAtTime;*/
+        return attendanceAtTime.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(entry -> {
+                    HashMap<ZonedDateTime, Integer> map = new HashMap<>();
+                    map.put(entry.getKey(), entry.getValue());
+                    return map;
+                })
+                .orElseGet(HashMap::new);
+    }
+
+    public HashSet<String> getReferers() {
+        return new HashSet<>(referers);
+    }
+
+    public int getMaxAttendancePerUser() {
+        Optional<Integer> maxAttendancePerUser = attendancePerUser.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .map(entry -> entry.getValue());
+
+        return maxAttendancePerUser.get();
     }
 }
